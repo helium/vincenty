@@ -22,3 +22,6 @@ $ ./rebar3 shell
 3> vincenty:distance({42.3541165, -71.0693514}, {40.7791472, -73.9680804}, true).
 185.414737
 ```
+
+# references
+- https://github.com/maurycyp/vincenty
