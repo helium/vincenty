@@ -2,7 +2,7 @@
 
 -type coordinate() :: {float(), float()}.
 
--export([radians/1, distance/2, distance/3]).
+-export([distance/2, distance/3]).
 
 -define(RADIUS_AT_EQUATOR, 6378137).
 -define(FLATTENING_ELIPSOID, 1/298.257223563).
