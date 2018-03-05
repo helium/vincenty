@@ -1,0 +1,13 @@
+{application, vincenty,
+ [{description, "Erlang library to calculate distance between 2 points with Vincenty's formulae."},
+  {vsn, "1.0.0"},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+
+  {maintainers, ["Helium"]},
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
