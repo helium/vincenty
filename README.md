@@ -1,5 +1,5 @@
 # vincenty
-Vincenty's formulae implementation in Erlang
+[Vincenty's formulae](https://en.wikipedia.org/wiki/Vincenty's_formulae) implementation in Erlang
 
 # usage
 $ make
