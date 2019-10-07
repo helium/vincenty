@@ -10,19 +10,22 @@
 -define(MILES_PER_KILOMETER, 0.621371).
 -define(MAX_ITERATIONS, 200).
 -define(CONVERGENCE_THRESHOLD, 0.000000000001).
+-define(PRECISION, 6).
 
--spec distance(coordinate(), coordinate()) -> float().
+-spec distance(coordinate(), coordinate()) -> {error, fail_to_converge} | {ok, float()}.
 distance(Point1, Point2) ->
     distance(Point1, Point2, false).
 
--spec distance(coordinate(), coordinate(), boolean()) -> float().
+-spec distance(coordinate(), coordinate(), boolean()) -> {error, fail_to_converge} | {ok, float()}.
 distance(Point1, Point2, Miles) ->
-    ExactAns = case Miles of
-              true -> miles(vincenty_inverse(Point1, Point2));
-              false -> vincenty_inverse(Point1, Point2)
-          end,
-    {RoundedToSixDecimalPlaces, _Rest} = string:to_float(float_to_list(ExactAns, [{decimals, 6}])),
-    RoundedToSixDecimalPlaces.
+    case {vincenty_inverse(Point1, Point2), Miles} of
+        {{error, _}=E, _} ->
+            E;
+        {D, true} ->
+            {ok, round_(miles(D), ?PRECISION)};
+        {D, false} ->
+            {ok, round_(D, ?PRECISION)}
+    end.
 
 -spec vincenty_inverse(coordinate(), coordinate()) -> float() | {error, fail_to_converge}.
 vincenty_inverse({Lat1, Long1}, {Lat2, Long2}) ->
@@ -83,3 +86,8 @@ radians(Degree) ->
 -spec miles(float()) -> float().
 miles(DistanceInKm) ->
     ?MILES_PER_KILOMETER * DistanceInKm.
+
+-spec round_(float(), pos_integer()) -> float().
+round_(Number, Precision) ->
+    P = math:pow(10, Precision),
+    round(Number * P) / P.
