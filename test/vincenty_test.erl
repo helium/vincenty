@@ -13,3 +13,9 @@ basic_test() ->
 known_test() ->
 	{ok, Ans} = vincenty:distance({39.152501,-84.412977}, {39.152505,-84.412946}),
     ?assertEqual(Ans, 0.002716).
+
+%% big_test() ->
+%%     lists:foreach(fun(_) ->
+%%                           {ok, _Ans} = vincenty:distance({39.152501,-84.412977}, {39.152505,-84.412946})
+%%                   end, lists:seq(1, 10000)),
+%%     ok.
