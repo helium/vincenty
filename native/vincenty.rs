@@ -8,10 +8,6 @@ const PRECISION: i32 = 6;
 pub type Coordinate = (f64, f64);
 
 pub fn distance(c1: Coordinate, c2: Coordinate) -> Option<f64> {
-    vincenty_inverse(c1, c2)
-}
-
-fn vincenty_inverse(c1: Coordinate, c2: Coordinate) -> Option<f64> {
     let (lat1, long1) = c1;
     let (lat2, long2) = c2;
     let u1 = f64::atan((1.0 - FLATTENING_ELIPSOID) * f64::tan(f64::to_radians(lat1)));
