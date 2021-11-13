@@ -43,7 +43,8 @@ fn approximate(
             return Some(0.0);
         }
 
-        let cos_sigma = sin_u1 * sin_u2 + cos_u1 * cos_u2 * cos_lambda;
+        let cos_sigma = sin_u1.mul_add(sin_u2, cos_u1 * cos_u2 * cos_lambda);
+
         let sigma = f64::atan2(sin_sigma, cos_sigma);
         let sin_alpha = cos_u1 * cos_u2 * sin_lambda / sin_sigma;
         let cos_sqalpha = 1.0 - f64::powi(sin_alpha, 2);
@@ -57,14 +58,17 @@ fn approximate(
         let c = (FLATTENING_ELIPSOID / 16.0)
             * cos_sqalpha
             * (4.0 + FLATTENING_ELIPSOID - 3.0 * cos_sqalpha);
-        let new_lambda = init_lambda
-            + (1.0 - c)
-                * FLATTENING_ELIPSOID
-                * sin_alpha
-                * (sigma
-                    + c * sin_sigma
-                        * (cos2_sigma_m
-                            + c * cos_sigma * (-1.0 + 2.0 * f64::powi(cos2_sigma_m, 2))));
+
+        let new_lambda = ((1.0 - c) * FLATTENING_ELIPSOID * sin_alpha).mul_add(
+            (c * sin_sigma).mul_add(
+                (c * cos_sigma).mul_add(
+                    2.0f64.mul_add(f64::powi(cos2_sigma_m, 2), -1.0),
+                    cos2_sigma_m,
+                ),
+                sigma,
+            ),
+            init_lambda,
+        );
 
         if f64::abs(new_lambda - lambda) < CONVERGENCE_THRESHOLD {
             // successful
@@ -89,17 +93,21 @@ fn evaluate(
 ) -> f64 {
     let usq = cos_sqalpha * (f64::powi(RADIUS_AT_EQUATOR, 2) - f64::powi(RADIUS_AT_POLES, 2))
         / f64::powi(RADIUS_AT_POLES, 2);
-    let a = 1.0 + usq / 16384.0 * (4096.0 + usq * (-768.0 + usq * (320.0 - 175.0 * usq)));
-    let b = (usq / 1024.0) * (256.0 + usq * (-128.0 + usq * (74.0 - 47.0 * usq)));
+    let a = (usq / 16384.0).mul_add(
+        usq.mul_add(usq.mul_add(320.0 - 175.0 * usq, -768.0), 4096.0),
+        1.0,
+    );
+    let b = (usq / 1024.0) * usq.mul_add(usq.mul_add(74.0 - 47.0 * usq, -128.0), 256.0);
     let delta_sigma = b
         * sin_sigma
-        * (cos2_sigma_m
-            + (b / 4.0)
-                * (cos_sigma * (-1.0 + 2.0 * f64::powi(cos2_sigma_m, 2))
-                    - (b / 6.0)
-                        * cos2_sigma_m
-                        * (-3.0 + 4.0 * f64::powi(sin_sigma, 2))
-                        * (-3.0 + 4.0 * f64::powi(cos2_sigma_m, 2))));
+        * (b / 4.0).mul_add(
+            cos_sigma * 2.0f64.mul_add(f64::powi(cos2_sigma_m, 2), -1.0)
+                - (b / 6.0)
+                    * cos2_sigma_m
+                    * (4.0f64.mul_add(f64::powi(sin_sigma, 2), -3.0))
+                    * (4.0f64.mul_add(f64::powi(cos2_sigma_m, 2), -3.0)),
+            cos2_sigma_m,
+        );
     RADIUS_AT_POLES * a * (sigma - delta_sigma) / 1000.0
 }
 
