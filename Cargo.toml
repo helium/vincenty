@@ -13,4 +13,4 @@ crate-type = ["dylib"]
 path = "native/lib.rs"
 
 [dependencies]
-rustler = { git = "https://github.com/rusterlium/rustler.git", branch = "master" }
+rustler = { git = "https://github.com/rusterlium/rustler.git", tag = "rustler-0.22.0" }
